@@ -2,6 +2,7 @@ GIT_CP_KAFKA = $(shell ls | grep cp-helm-charts)
 HELM_LIST = list
 K3D_CONFIG = config
 K3D_LIST = $(shell k3d list | grep kafka-labs | cut -c 3-12)
+OS=darwin
 
 REGISTRY = confluentinc
 IMAGE_TAG = 5.4.1
@@ -47,7 +48,7 @@ endif
 
 
 .PHONY: start
-start: k3d/setup pull/images k3d/import install/charts
+start: k3d/setup install/charts
 
 .PHONY: pf
 pf:
@@ -63,3 +64,12 @@ stop:
 clean:
 	$(info Deleting k3d cluster ...)
 	k3d delete --name=kafka-labs
+
+.PHONY: tp
+tp:
+	# Install kafkaconnect terraform-provider
+	curl -o terraform-provider-kafkaconnect.tar.gz -L https://github.com/b-social/terraform-provider-kafkaconnect/releases/download/0.9.0-rc.4/terraform-provider-kafkaconnect_v0.9.0-rc.4_$(OS)_amd64.tar.gz
+	tar -xvf terraform-provider-kafkaconnect.tar.gz
+	mkdir -p ~/.terraform.d/plugins/
+	mv terraform-provider-kafkaconnect ~/.terraform.d/plugins/terraform-provider-kafkaconnect
+	rm terraform-provider-kafkaconnect.tar.gz

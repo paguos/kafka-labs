@@ -45,4 +45,5 @@ make pf
 
 Continue with one of the following examples:
 
-- [Kafka Connect - Rest Api](examples/rest-api/README.md)
+- [Rest Api](examples/rest-api/README.md)
+- [Terraform](examples/terraform/README.md)
