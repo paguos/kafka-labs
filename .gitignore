@@ -1,5 +1,3 @@
-cp-helm-charts
-
 # Local .terraform directories
 **/.terraform/*
 

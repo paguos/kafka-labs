@@ -5,8 +5,8 @@ Experiments with [kafka](https://kafka.apache.org/) and the [kafka confluent pla
 ## Requirements
 
 - [asdf](https://github.com/asdf-vm/asdf) version manager
-- [helm plugin](https://github.com/Antiarchitect/asdf-helm) for asdf
-- [Docker](https://www.docker.com/) 
+- [helm](https://github.com/Antiarchitect/asdf-helm) and [terraform](https://github.com/Banno/asdf-hashicorp) plugins for asdf
+- [Docker](https://www.docker.com/)
 - [k3d](https://github.com/rancher/k3d) dockerized k3s helper
 
 Before beginning with the setup run the following command:

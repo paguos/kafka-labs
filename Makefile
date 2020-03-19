@@ -19,11 +19,6 @@ endif
 override HELM_LIST = $(shell KUBECONFIG=$(K3D_CONFIG) helm list --namespace=kafka | grep cp | cut -c 1-2)
 override K3D_CONFIG = $(shell k3d get-kubeconfig --name=kafka-labs)
 
-clone/cp-kafka:
-ifneq ($(GIT_CP_KAFKA), cp-helm-charts)
-	git clone git@github.com:confluentinc/cp-helm-charts.git
-endif
-
 create/namespace:
 	export KUBECONFIG=$(K3D_CONFIG); \
 	kubectl apply -f scripts/kubernetes/namespace.yml;
@@ -36,14 +31,15 @@ k3d/import:
 	$(info Importing docker images to k3d ...)
 	for i in $(IMAGES); do k3d i --name=kafka-labs $(REGISTRY)/$$i:$(IMAGE_TAG); done
 
-install/charts: clone/cp-kafka create/namespace
+install/charts: create/namespace
 	$(info Installing helm charts ...)
+	helm repo add confluentinc https://confluentinc.github.io/cp-helm-charts/
 ifeq ($(HELM_LIST), cp)
 	export KUBECONFIG=$(K3D_CONFIG); \
-	helm upgrade cp cp-helm-charts --namespace=kafka
+	helm upgrade cp confluentinc/cp-helm-charts --namespace=kafka
 else
 	export KUBECONFIG=$(K3D_CONFIG); \
-	helm install cp cp-helm-charts --namespace=kafka
+	helm install cp confluentinc/cp-helm-charts --namespace=kafka
 endif
 
 
