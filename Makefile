@@ -73,7 +73,9 @@ stop:
 .PHONY: clean
 clean:
 	$(info Deleting k3d cluster ...)
+	export KUBECONFIG=$(K3D_CONFIG); \
 	helm delete cp
+	export KUBECONFIG=$(K3D_CONFIG); \
 	helm delete mssql
 
 .PHONY: tp
