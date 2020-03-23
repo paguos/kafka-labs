@@ -3,6 +3,9 @@ K3D_CONFIG = config
 K3D_LIST = $(shell k3d list | grep kafka-labs | cut -c 3-12)
 OS=darwin
 
+HELM_CP=none
+HELM_MSSQL=none
+
 CP_REGISTRY = confluentinc
 CP_IMAGE_TAG = 5.4.1
 CP_IMAGES = cp-enterprise-kafka cp-zookeeper
@@ -32,13 +35,13 @@ kafka-connect/build:
 	k3d i --name=kafka-labs custom-kafka-connect:test
 
 cp/charts: kafka-connect/build cp/pull-images
-	HELM_LIST = $(shell KUBECONFIG=$(K3D_CONFIG) helm list --namespace=kafka | grep cp | cut -c 1-2)
-ifeq ($(HELM_LIST), cp)
+override HELM_CP = $(shell KUBECONFIG=$(K3D_CONFIG) helm list --namespace=kafka | grep cp | cut -c 1-2)
+ifeq ($(HELM_CP), cp)
 	export KUBECONFIG=$(K3D_CONFIG); \
-	helm upgrade cp kubernetes/cp --namespace=kafka --values kubernestes/values/cp.yml
+	helm upgrade cp kubernetes/cp --namespace=kafka --values kubernetes/values/cp.yml
 else
 	export KUBECONFIG=$(K3D_CONFIG); \
-	helm install cp kubernetes/cp --namespace=kafka --values kubernestes/values/cp.yml
+	helm install cp kubernetes/cp --namespace=kafka --values kubernetes/values/cp.yml
 endif
 
 mssql/pull-images:
@@ -46,13 +49,13 @@ mssql/pull-images:
 	k3d i --name=kafka-labs microsoft/mssql-server-linux:2017-CU5
 
 mssql/charts: mssql/pull-images
-	HELM_MSSQL = $(shell KUBECONFIG=$(K3D_CONFIG) helm list --namespace=kafka | grep mssql | cut -c 1-5)
+override HELM_MSSQL = $(shell KUBECONFIG=$(K3D_CONFIG) helm list --namespace=kafka | grep mssql | cut -c 1-5)
 ifeq ($(HELM_MSSQL), mssql)
 	export KUBECONFIG=$(K3D_CONFIG); \
-	helm upgrade mssql charts/stable/mssql-linux --namespace=kafka --values kubernestes/values/mssql.yml
+	helm upgrade mssql charts/stable/mssql-linux --namespace=kafka --values kubernetes/values/mssql.yml
 else
 	export KUBECONFIG=$(K3D_CONFIG); \
-	helm install mssql kubernetes/mssql-linux --namespace=kafka kubernestes/values/mssql.yml
+	helm install mssql kubernetes/mssql-linux --namespace=kafka kubernetes/values/mssql.yml
 endif
 
 install/charts: create/namespace cp/charts mssql/charts
