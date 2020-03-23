@@ -1,6 +1,7 @@
 GIT_CP_KAFKA = $(shell ls | grep cp-helm-charts)
 K3D_CONFIG = config
 K3D_LIST = $(shell k3d list | grep kafka-labs | cut -c 3-12)
+K3D_IMPORT=true
 OS=darwin
 
 HELM_CP=none
@@ -25,28 +26,34 @@ create/namespace:
 	kubectl apply -f kubernetes/namespace.yml;
 
 cp/pull-images:
+ifeq ($(K3D_IMPORT), true)
 	$(info Downloading docker images ...)
 	for i in $(CP_IMAGES); do docker pull $(CP_REGISTRY)/$$i:$(CP_IMAGE_TAG); done
 	$(info Importing docker images to k3d ...)
 	for i in $(CP_IMAGES); do k3d i --name=kafka-labs $(CP_REGISTRY)/$$i:$(CP_IMAGE_TAG); done
+endif
 
 kafka-connect/build:
+ifeq ($(K3D_IMPORT), true)
 	docker build . -t custom-kafka-connect:test
 	k3d i --name=kafka-labs custom-kafka-connect:test
+endif
 
 cp/charts: kafka-connect/build cp/pull-images
 override HELM_CP = $(shell KUBECONFIG=$(K3D_CONFIG) helm list --namespace=kafka | grep cp | cut -c 1-2)
 ifeq ($(HELM_CP), cp)
 	export KUBECONFIG=$(K3D_CONFIG); \
-	helm upgrade cp kubernetes/cp --namespace=kafka --values kubernetes/values/cp.yml
+	helm upgrade cp kubernetes/cp-kafka --namespace=kafka --values kubernetes/values/cp.yml
 else
 	export KUBECONFIG=$(K3D_CONFIG); \
-	helm install cp kubernetes/cp --namespace=kafka --values kubernetes/values/cp.yml
+	helm install cp kubernetes/cp-kafka --namespace=kafka --values kubernetes/values/cp.yml
 endif
 
 mssql/pull-images:
+ifeq ($(K3D_IMPORT), true)
 	docker pull microsoft/mssql-server-linux:2017-CU5
 	k3d i --name=kafka-labs microsoft/mssql-server-linux:2017-CU5
+endif
 
 mssql/charts: mssql/pull-images
 override HELM_MSSQL = $(shell KUBECONFIG=$(K3D_CONFIG) helm list --namespace=kafka | grep mssql | cut -c 1-5)
