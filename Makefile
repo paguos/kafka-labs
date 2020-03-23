@@ -59,7 +59,7 @@ mssql/charts: mssql/pull-images
 override HELM_MSSQL = $(shell KUBECONFIG=$(K3D_CONFIG) helm list --namespace=kafka | grep mssql | cut -c 1-5)
 ifeq ($(HELM_MSSQL), mssql)
 	export KUBECONFIG=$(K3D_CONFIG); \
-	helm upgrade mssql charts/stable/mssql-linux --namespace=kafka --values kubernetes/values/mssql.yml
+	helm upgrade mssql kubernetes/mssql-linux --namespace=kafka --values kubernetes/values/mssql.yml
 else
 	export KUBECONFIG=$(K3D_CONFIG); \
 	helm install mssql kubernetes/mssql-linux --namespace=kafka --values kubernetes/values/mssql.yml
