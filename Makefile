@@ -62,7 +62,7 @@ ifeq ($(HELM_MSSQL), mssql)
 	helm upgrade mssql charts/stable/mssql-linux --namespace=kafka --values kubernetes/values/mssql.yml
 else
 	export KUBECONFIG=$(K3D_CONFIG); \
-	helm install mssql kubernetes/mssql-linux --namespace=kafka kubernetes/values/mssql.yml
+	helm install mssql kubernetes/mssql-linux --namespace=kafka --values kubernetes/values/mssql.yml
 endif
 
 install/charts: create/namespace cp/charts mssql/charts
