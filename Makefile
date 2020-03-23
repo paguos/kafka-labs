@@ -1,12 +1,11 @@
 GIT_CP_KAFKA = $(shell ls | grep cp-helm-charts)
-HELM_LIST = list
 K3D_CONFIG = config
 K3D_LIST = $(shell k3d list | grep kafka-labs | cut -c 3-12)
 OS=darwin
 
-REGISTRY = confluentinc
-IMAGE_TAG = 5.4.1
-IMAGES = cp-kafka-rest cp-enterprise-control-center cp-ksql-server cp-schema-registry cp-kafka-connect
+CP_REGISTRY = confluentinc
+CP_IMAGE_TAG = 5.4.1
+CP_IMAGES = cp-enterprise-kafka cp-zookeeper
 
 k3d/setup:
 ifeq ($(K3D_LIST), kafka-labs)
@@ -16,32 +15,47 @@ else
 	$(info Creating k3d cluster ...)
 	k3d create --name=kafka-labs --wait=30
 endif
-override HELM_LIST = $(shell KUBECONFIG=$(K3D_CONFIG) helm list --namespace=kafka | grep cp | cut -c 1-2)
 override K3D_CONFIG = $(shell k3d get-kubeconfig --name=kafka-labs)
 
 create/namespace:
 	export KUBECONFIG=$(K3D_CONFIG); \
-	kubectl apply -f scripts/kubernetes/namespace.yml;
+	kubectl apply -f kubernetes/namespace.yml;
 
-pull/images:
+cp/pull-images:
 	$(info Downloading docker images ...)
-	for i in $(IMAGES); do docker pull $(REGISTRY)/$$i:$(IMAGE_TAG); done
-
-k3d/import:
+	for i in $(CP_IMAGES); do docker pull $(CP_REGISTRY)/$$i:$(CP_IMAGE_TAG); done
 	$(info Importing docker images to k3d ...)
-	for i in $(IMAGES); do k3d i --name=kafka-labs $(REGISTRY)/$$i:$(IMAGE_TAG); done
+	for i in $(CP_IMAGES); do k3d i --name=kafka-labs $(CP_REGISTRY)/$$i:$(CP_IMAGE_TAG); done
 
-install/charts: create/namespace
-	$(info Installing helm charts ...)
-	helm repo add confluentinc https://confluentinc.github.io/cp-helm-charts/
+kafka-connect/build:
+	docker build . -t custom-kafka-connect:test
+	k3d i --name=kafka-labs custom-kafka-connect:test
+
+cp/charts: kafka-connect/build cp/pull-images
+	HELM_LIST = $(shell KUBECONFIG=$(K3D_CONFIG) helm list --namespace=kafka | grep cp | cut -c 1-2)
 ifeq ($(HELM_LIST), cp)
 	export KUBECONFIG=$(K3D_CONFIG); \
-	helm upgrade cp confluentinc/cp-helm-charts --namespace=kafka
+	helm upgrade cp kubernetes/cp --namespace=kafka --values kubernestes/values/cp.yml
 else
 	export KUBECONFIG=$(K3D_CONFIG); \
-	helm install cp confluentinc/cp-helm-charts --namespace=kafka
+	helm install cp kubernetes/cp --namespace=kafka --values kubernestes/values/cp.yml
 endif
 
+mssql/pull-images:
+	docker pull microsoft/mssql-server-linux:2017-CU5
+	k3d i --name=kafka-labs microsoft/mssql-server-linux:2017-CU5
+
+mssql/charts: mssql/pull-images
+	HELM_MSSQL = $(shell KUBECONFIG=$(K3D_CONFIG) helm list --namespace=kafka | grep mssql | cut -c 1-5)
+ifeq ($(HELM_MSSQL), mssql)
+	export KUBECONFIG=$(K3D_CONFIG); \
+	helm upgrade mssql charts/stable/mssql-linux --namespace=kafka --values kubernestes/values/mssql.yml
+else
+	export KUBECONFIG=$(K3D_CONFIG); \
+	helm install mssql kubernetes/mssql-linux --namespace=kafka kubernestes/values/mssql.yml
+endif
+
+install/charts: create/namespace cp/charts mssql/charts
 
 .PHONY: start
 start: k3d/setup install/charts
@@ -59,7 +73,8 @@ stop:
 .PHONY: clean
 clean:
 	$(info Deleting k3d cluster ...)
-	k3d delete --name=kafka-labs
+	helm delete cp
+	helm delete mssql
 
 .PHONY: tp
 tp:

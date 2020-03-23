@@ -1,0 +1,3 @@
+cp-kafka-connect:
+  image: custom-kafka-connect
+  imageTag: test
