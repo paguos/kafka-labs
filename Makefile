@@ -91,8 +91,9 @@ clean:
 .PHONY: tp
 tp:
 	# Install kafkaconnect terraform-provider
-	curl -o terraform-provider-kafkaconnect.tar.gz -L https://github.com/b-social/terraform-provider-kafkaconnect/releases/download/0.9.0-rc.4/terraform-provider-kafkaconnect_v0.9.0-rc.4_$(OS)_amd64.tar.gz
-	tar -xvf terraform-provider-kafkaconnect.tar.gz
+	mkdir -p /tmp/kafka-connect/
+	curl -o /tmp/kafka-connect/terraform-provider-kafkaconnect.tar.gz -L https://github.com/Mongey/terraform-provider-kafka-connect/releases/download/v0.2.1/terraform-provider-kafka-connect_0.2.1_$(OS)_amd64.tar.gz
+	tar -xvf /tmp/kafka-connect/terraform-provider-kafkaconnect.tar.gz -C /tmp/kafka-connect
 	mkdir -p ~/.terraform.d/plugins/
-	mv terraform-provider-kafkaconnect ~/.terraform.d/plugins/terraform-provider-kafkaconnect
-	rm terraform-provider-kafkaconnect.tar.gz
+	mv /tmp/kafka-connect/terraform-provider-kafka-connect_v0.2.1 ~/.terraform.d/plugins/terraform-provider-kafka-connect
+	rm -rf /tmp/kafka-connect/
