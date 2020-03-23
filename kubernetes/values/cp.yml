@@ -1,3 +1,14 @@
 cp-kafka-connect:
   image: custom-kafka-connect
   imageTag: test
+
+cp-kafka:
+  brokers: 2
+
+cp-zookeeper:
+  servers: 2
+  prometheus:
+  ## JMX Exporter Configuration
+  ## ref: https://github.com/prometheus/jmx_exporter
+  jmx:
+    enabled: false

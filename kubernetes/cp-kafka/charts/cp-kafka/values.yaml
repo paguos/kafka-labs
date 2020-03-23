@@ -50,10 +50,11 @@ configurationOverrides:
   # "advertised.listeners": |-
   # EXTERNAL://${HOST_IP}:$((31090 + ${KAFKA_BROKER_ID}))
   "listener.security.protocol.map": |-
-   PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+    PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
 
 ## Additional env variables
-customEnv: {}
+customEnv:
+  {}
   # KAFKA_METRIC_REPORTERS: "io.confluent.metrics.reporter.ConfluentMetricsReporter"
   # CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: "localhost:9092"
 
@@ -78,7 +79,8 @@ persistence:
 ## Kafka JVM Heap Option
 heapOptions: "-Xms512M -Xmx512M"
 
-resources: {}
+resources:
+  {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
   # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -113,7 +115,7 @@ prometheus:
   ## JMX Exporter Configuration
   ## ref: https://github.com/prometheus/jmx_exporter
   jmx:
-    enabled: true
+    enabled: false
     image: solsson/kafka-prometheus-jmx-exporter@sha256
     imageTag: 6f82e2b0464f50da8104acd7363fb9b995001ddff77d248379f8788e78946143
     imagePullPolicy: IfNotPresent

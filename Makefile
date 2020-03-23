@@ -34,10 +34,8 @@ ifeq ($(K3D_IMPORT), true)
 endif
 
 kafka-connect/build:
-ifeq ($(K3D_IMPORT), true)
 	docker build . -t custom-kafka-connect:test
 	k3d i --name=kafka-labs custom-kafka-connect:test
-endif
 
 cp/charts: kafka-connect/build cp/pull-images
 override HELM_CP = $(shell KUBECONFIG=$(K3D_CONFIG) helm list --namespace=kafka | grep cp | cut -c 1-2)
