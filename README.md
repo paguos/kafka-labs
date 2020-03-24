@@ -74,3 +74,11 @@ make producer
 ```
 
 This will insert 3000 rows into the ship and train tables every second for the next hour.
+
+### Monitoring
+
+To monitor the pod that runs kafka connect:
+
+```sh
+make monitoring
+```

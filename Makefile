@@ -110,3 +110,8 @@ producer:
 .PHONY: seed
 seed:
 	kubectl run mssql-seed --image=mssql_cli:init -ti -n kafka --restart=Never --rm=true
+
+.PHONY: monitoring
+monitoring:
+override POD=$(shell kubectl get pods -n kafka -l 'app=cp-kafka-connect' -o jsonpath='{.items[0].metadata.name}')
+	kubectl -n kafka top pod $(POD)
