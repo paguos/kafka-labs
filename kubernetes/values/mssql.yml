@@ -1,2 +1,6 @@
 edition:
   value: Standard
+acceptEula:
+  value: "Y"
+agent:
+  enabled: true
