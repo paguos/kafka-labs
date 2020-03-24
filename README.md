@@ -23,7 +23,14 @@ To setup a local run the following command:
 make start
 ```
 
-To configure the kube-config in your terminal:
+This will start the following components in a local k8s single node cluster:
+
+- Kafka
+- ZooKeeper
+- Kafka-Connect
+- MSSQL
+
+To configure the kubeconfig in your terminal:
 
 ```sh
 export KUBECONFIG=$(k3d get-kubeconfig --name=kafka-labs)
@@ -35,15 +42,35 @@ Once your done stop the cluster:
 make stop
 ```
 
-## Examples
+## Example
 
-Before you start make sure to forward the ports of the services:
+### Deploy Connectors
+
+Make sure to forward the ports of the services:
 
 ```sh
 make pf
 ```
 
-Continue with one of the following examples:
+In another terminal enter the following commands to install the debezium mssql plugin:
 
-- [Rest Api](examples/rest-api/README.md)
-- [Terraform](examples/terraform/README.md)
+```sh
+cd terraform
+terraform apply
+```
+
+### Insert Data to the MSSQL Instance
+
+Make sure to forward the ports of the services:
+
+```sh
+make pf
+```
+
+In another terminal enter the following command:
+
+```sh
+make producer
+```
+
+This will insert 3000 rows into the ship and train tables every second for the next hour.

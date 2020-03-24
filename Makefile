@@ -66,7 +66,7 @@ endif
 install/charts: create/namespace cp/charts mssql/charts
 
 .PHONY: start
-start: k3d/setup install/charts
+start: k3d/setup install/charts db seed
 
 .PHONY: pf
 pf:
@@ -95,3 +95,18 @@ tp:
 	mkdir -p ~/.terraform.d/plugins/
 	mv /tmp/kafka-connect/terraform-provider-kafka-connect_v0.2.1 ~/.terraform.d/plugins/terraform-provider-kafka-connect
 	rm -rf /tmp/kafka-connect/
+
+.PHONY: db
+db:
+	docker build examples/data_procuder/ -t mssql_cli:init --target=init
+	k3d i --name=kafka-labs mssql_cli:init
+	docker build examples/data_procuder/ -t mssql_cli:producer --target=producer
+	k3d i --name=kafka-labs mssql_cli:producer
+
+.PHONY: producer
+producer:
+	kubectl run mssql-producer --image=mssql_cli:producer -ti --restart=Never --rm=true
+
+.PHONY: seed
+seed:
+	kubectl run mssql-seed --image=mssql_cli:init -ti -n kafka --restart=Never --rm=true

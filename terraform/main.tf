@@ -38,6 +38,6 @@ resource "kafka-connect_connector" "debezium_connector" {
   }
 
   config_sensitive = {
-    "database.password" = "M6JzVLUBprPnbTT3Ph0M"
+    "database.password" = "MyStrongPassword1234"
   }
 }

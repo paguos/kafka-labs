@@ -8,7 +8,7 @@ hadr: 0
 agent:
   enabled: false
 # Override sapassword in templates/secret.yaml
-# sapassword: "MyStrongPassword1234"
+sapassword: "MyStrongPassword1234"
 existingSecret: ""
 existingSecretKey: sapassword
 image:
