@@ -115,3 +115,7 @@ seed:
 monitoring:
 override POD=$(shell kubectl get pods -n kafka -l 'app=cp-kafka-connect' -o jsonpath='{.items[0].metadata.name}')
 	kubectl -n kafka top pod $(POD)
+
+.PHONY: listen
+listen:
+	kubectl run kafka-client --image=confluentinc/cp-zookeeper:5.4.1 -ti -n kafka --restart=Never --rm=true -- kafka-console-consumer --bootstrap-server cp-cp-kafka-headless:9092 --topic $(TOPIC) --timeout-ms 8000

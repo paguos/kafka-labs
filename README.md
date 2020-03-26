@@ -75,6 +75,20 @@ make producer
 
 This will insert 3000 rows into the ship and train tables every second for the next hour.
 
+### Listening to a kafka topic
+
+Make sure to forward the ports of the services:
+
+```sh
+make pf
+```
+
+In another terminal enter the following command:
+
+```sh
+make listen TOPIC=main.dbo.ship
+```
+
 ### Monitoring
 
 To monitor the pod that runs kafka connect:
