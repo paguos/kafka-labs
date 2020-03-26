@@ -35,6 +35,7 @@ resource "kafka-connect_connector" "debezium_connector" {
     "database.history.kafka.bootstrap.servers" = "cp-cp-kafka.kafka:9092"
     "database.history.kafka.topic"             = "__debezium.dbhistory"
     "table.whitelist"                          = "dbo[.]ship,dbo[.]train"
+    "confluent.topic.replication.factor"       = 3
   }
 
   config_sensitive = {
