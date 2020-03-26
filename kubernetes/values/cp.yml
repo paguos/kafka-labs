@@ -1,4 +1,5 @@
 cp-kafka-connect:
+  replicaCount: 3
   image: custom-kafka-connect
   imageTag: test
 
